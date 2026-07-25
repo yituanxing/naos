@@ -97,6 +97,7 @@
               cpio
               curl
               dosfstools
+              e2fsprogs
               findutils
               git
               gnumake
@@ -104,6 +105,8 @@
               mtools
               nix
               qemu
+              sudo
+              xz
             ];
             shellHook = ''
               export NA_OVMF_CODE="${pkgs.OVMF.fd}/FV/OVMF_CODE.fd"

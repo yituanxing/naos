@@ -5,18 +5,32 @@ ARCH ?= x86_64
 BUILD_MODE ?= release
 BOOT_PROTOCOL ?= limine
 MODULE_VERIFY ?= 0
+ROOTFS ?= voidlinux
 
 MEM ?= 8G
 CPU ?= 4
+VOID_ROOTFS_SIZE_MB ?= 8192
+VOID_MIRROR ?= http://mirrors.tuna.tsinghua.edu.cn/voidlinux/current
+VOID_PACKAGES ?=
+
+SUPPORTED_ROOTFS := nixos voidlinux
+ifeq ($(filter $(ROOTFS),$(SUPPORTED_ROOTFS)),)
+$(error unsupported ROOTFS '$(ROOTFS)'; expected one of: $(SUPPORTED_ROOTFS))
+endif
 
 KERNEL_DIR := $(CURDIR)/na-kernel
 KERNEL_MAKE := $(CURDIR)/nix/kernel-make.sh
 HOST_COMMAND := $(CURDIR)/nix/host-command.sh
 BUILD_DIR := $(CURDIR)/build/$(ARCH)
-ROOTFS_IMAGE := $(BUILD_DIR)/rootfs.img
+ROOTFS_DIR := $(BUILD_DIR)/rootfs/$(ROOTFS)
+ROOTFS_IMAGE := $(ROOTFS_DIR)/rootfs.img
 INITRAMFS_IMAGE := $(BUILD_DIR)/initramfs.img
 BOOT_IMAGE := $(BUILD_DIR)/boot.img
 LIMINE_DIR := $(CURDIR)/build/limine
+VOID_ROOTFS_DIR := $(CURDIR)/rootfs/voidlinux
+VOID_ROOTFS_INPUTS := $(VOID_ROOTFS_DIR)/build.sh \
+	$(VOID_ROOTFS_DIR)/packages.txt \
+	$(shell find $(VOID_ROOTFS_DIR)/overlay \( -type f -o -type l \) 2>/dev/null)
 
 ifeq ($(ARCH),x86_64)
 LIMINE_EFI := BOOTX64.EFI
@@ -28,7 +42,8 @@ else ifeq ($(ARCH),loongarch64)
 LIMINE_EFI := BOOTLOONGARCH64.EFI
 endif
 
-.PHONY: all prepare kernel modules initramfs image run clean distclean
+.PHONY: all prepare kernel modules initramfs image rootfs rootfs-nixos \
+	rootfs-voidlinux run clean distclean
 ifeq ($(BOOT_PROTOCOL),limine)
 all: image rootfs
 else
@@ -52,8 +67,19 @@ kernel: initramfs
 		MODULE_VERIFY=$(MODULE_VERIFY) INITRAMFS_IMAGE=$(INITRAMFS_IMAGE)
 
 rootfs: $(ROOTFS_IMAGE)
+rootfs-nixos:
+	$(MAKE) rootfs ROOTFS=nixos
+
+rootfs-voidlinux:
+	$(MAKE) rootfs ROOTFS=voidlinux
+
+ifeq ($(ROOTFS), nixos)
 $(ROOTFS_IMAGE): nix/flake.nix nix/flake.lock nix/configuration.nix nix/build-artifact.sh
 	./nix/build-artifact.sh rootfs $(ARCH) $@
+else ifeq ($(ROOTFS), voidlinux)
+$(ROOTFS_IMAGE): $(VOID_ROOTFS_INPUTS)
+	ARCH=$(ARCH) OUTPUT=$@ ROOTFS_SIZE_MB=$(VOID_ROOTFS_SIZE_MB) VOID_MIRROR=$(VOID_MIRROR) VOID_PACKAGES='$(VOID_PACKAGES)' $(VOID_ROOTFS_DIR)/build.sh
+endif
 
 image: $(BOOT_IMAGE)
 

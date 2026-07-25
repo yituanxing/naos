@@ -1,0 +1,55 @@
+# Base userspace
+base-minimal
+bash
+coreutils
+util-linux
+inetutils
+bind-utils
+pciutils
+usbutils
+sudo
+iw
+
+# Development and diagnostics
+gcc
+binutils
+openjdk25-jre
+make
+strace
+git
+glibc-locales
+ncurses
+tzdata
+which
+shadow
+grep
+elfutils
+curl
+htop
+vim
+fastfetch
+
+# Device, login and desktop services
+seatd
+eudev
+dbus
+elogind
+polkit
+
+# Graphical desktop and compatibility
+xfce4
+labwc
+xorg-server-xwayland
+xrandr
+xkeyboard-config
+xf86-input-evdev
+mesa
+mesa-dri
+mesa-demos
+adwaita-icon-theme
+noto-fonts-cjk
+
+# Applications kept from the historical na-kernel rootfs
+lite-xl
+qemu-system-amd64
+libwebkit2gtk41
