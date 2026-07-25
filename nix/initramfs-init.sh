@@ -50,7 +50,6 @@ fi
 
 if [ -z "$stage2_init" ]; then
   for candidate in \
-    /nix/var/nix/profiles/system/init \
     /usr/lib/aether/init \
     /sbin/init; do
     if [ -x "/sysroot$candidate" ]; then
@@ -61,8 +60,7 @@ if [ -z "$stage2_init" ]; then
 fi
 
 if [ -z "$stage2_init" ] || [ ! -x "/sysroot$stage2_init" ]; then
-  echo "initramfs: no usable stage-2 init found"
-  exec sh
+  stage2_init=/nix/var/nix/profiles/system/init
 fi
 
 mkdir -p /sysroot/dev /sysroot/proc /sysroot/sys /sysroot/run
