@@ -15,6 +15,11 @@
   };
 
   networking.hostName = "na-kernel";
+  networking.useDHCP = false;
+  networking.nameservers = [
+    "223.5.5.5"
+    "8.8.8.8"
+  ];
 
   time.timeZone = "Asia/Shanghai";
 
@@ -43,6 +48,9 @@
     procps
     util-linux
     dbus
+    # Other applications
+    vim
+    mesa-demos
   ];
 
   services.dbus.enable = true;
