@@ -6,7 +6,7 @@ set -eu
 : "${OUTPUT:?OUTPUT is required}"
 
 ROOTFS_SIZE_MB=${ROOTFS_SIZE_MB:-8192}
-VOID_MIRROR=${VOID_MIRROR:-https://mirrors.tuna.tsinghua.edu.cn/voidlinux/current}
+VOID_MIRROR=${VOID_MIRROR:-http://mirrors.tuna.tsinghua.edu.cn/voidlinux/current}
 VOID_PACKAGES=${VOID_PACKAGES:-}
 
 script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)

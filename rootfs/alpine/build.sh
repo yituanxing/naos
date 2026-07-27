@@ -6,7 +6,7 @@ set -eu
 : "${OUTPUT:?OUTPUT is required}"
 
 ROOTFS_SIZE_MB=${ROOTFS_SIZE_MB:-8192}
-ALPINE_MIRROR_ROOT=${ALPINE_MIRROR_ROOT:-https://mirrors.tuna.tsinghua.edu.cn/alpine}
+ALPINE_MIRROR_ROOT=${ALPINE_MIRROR_ROOT:-http://mirrors.tuna.tsinghua.edu.cn/alpine}
 ALPINE_VERSION=${ALPINE_VERSION:-v3.23}
 ALPINE_COMPAT_VERSION=${ALPINE_COMPAT_VERSION:-v3.20}
 

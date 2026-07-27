@@ -11,6 +11,7 @@ MEM ?= 8G
 CPU ?= 4
 VOID_ROOTFS_SIZE_MB ?= 8192
 VOID_MIRROR ?= http://mirrors.tuna.tsinghua.edu.cn/voidlinux/current
+ALPINE_MIRROR_ROOT ?= http://mirrors.tuna.tsinghua.edu.cn/alpine
 VOID_PACKAGES ?=
 
 SUPPORTED_ROOTFS := nixos voidlinux alpine
