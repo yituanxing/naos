@@ -11,9 +11,10 @@ MEM ?= 8G
 CPU ?= 4
 VOID_ROOTFS_SIZE_MB ?= 8192
 VOID_MIRROR ?= http://mirrors.tuna.tsinghua.edu.cn/voidlinux/current
+ALPINE_MIRROR_ROOT ?= http://mirrors.tuna.tsinghua.edu.cn/alpine
 VOID_PACKAGES ?=
 
-SUPPORTED_ROOTFS := nixos voidlinux
+SUPPORTED_ROOTFS := nixos voidlinux alpine
 ifeq ($(filter $(ROOTFS),$(SUPPORTED_ROOTFS)),)
 $(error unsupported ROOTFS '$(ROOTFS)'; expected one of: $(SUPPORTED_ROOTFS))
 endif
@@ -31,6 +32,10 @@ VOID_ROOTFS_DIR := $(CURDIR)/rootfs/voidlinux
 VOID_ROOTFS_INPUTS := $(VOID_ROOTFS_DIR)/build.sh \
 	$(VOID_ROOTFS_DIR)/packages.txt \
 	$(shell find $(VOID_ROOTFS_DIR)/overlay \( -type f -o -type l \) 2>/dev/null)
+ALPINE_ROOTFS_DIR := $(CURDIR)/rootfs/alpine
+ALPINE_ROOTFS_INPUTS := $(ALPINE_ROOTFS_DIR)/build.sh \
+	$(ALPINE_ROOTFS_DIR)/packages.txt \
+	$(shell find $(ALPINE_ROOTFS_DIR)/overlay \( -type f -o -type l \) 2>/dev/null)
 
 ifeq ($(ARCH),x86_64)
 LIMINE_EFI := BOOTX64.EFI
@@ -43,7 +48,7 @@ LIMINE_EFI := BOOTLOONGARCH64.EFI
 endif
 
 .PHONY: all prepare kernel modules initramfs image rootfs rootfs-nixos \
-	rootfs-voidlinux run clean distclean
+	rootfs-voidlinux rootfs-alpine run clean distclean
 ifeq ($(BOOT_PROTOCOL),limine)
 all: image rootfs
 else
@@ -73,12 +78,18 @@ rootfs-nixos:
 rootfs-voidlinux:
 	$(MAKE) rootfs ROOTFS=voidlinux
 
+rootfs-alpine:
+	$(MAKE) rootfs ROOTFS=alpine
+
 ifeq ($(ROOTFS), nixos)
 $(ROOTFS_IMAGE): nix/flake.nix nix/flake.lock nix/configuration.nix nix/build-artifact.sh
 	./nix/build-artifact.sh rootfs $(ARCH) $@
 else ifeq ($(ROOTFS), voidlinux)
 $(ROOTFS_IMAGE): $(VOID_ROOTFS_INPUTS)
 	ARCH=$(ARCH) OUTPUT=$@ ROOTFS_SIZE_MB=$(VOID_ROOTFS_SIZE_MB) VOID_MIRROR=$(VOID_MIRROR) VOID_PACKAGES='$(VOID_PACKAGES)' $(VOID_ROOTFS_DIR)/build.sh
+else ifeq ($(ROOTFS), alpine)
+$(ROOTFS_IMAGE): $(ALPINE_ROOTFS_INPUTS)
+	ARCH=$(ARCH) OUTPUT=$@ ROOTFS_SIZE_MB=$(VOID_ROOTFS_SIZE_MB) $(ALPINE_ROOTFS_DIR)/build.sh
 endif
 
 image: $(BOOT_IMAGE)
